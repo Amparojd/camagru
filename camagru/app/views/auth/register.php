@@ -1,5 +1,11 @@
-<div class="auth-container">
-    <h2>Registro</h2>
+<div class="auth-page">
+    <div class="logo-container">
+        <img src="<?php echo URL_ROOT; ?>/img/camagru_logo.png" alt="Logo" class="main-logo">
+    </div>
+    <div class="auth-form-container">
+        <div class="auth-header">
+            <h2>Registro</h2>
+        </div>
     <form action="/register" method="POST">
         <div class="form-group">
             <label for="username">Usuario:</label>

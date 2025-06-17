@@ -1,5 +1,64 @@
 RewriteEngine On
 RewriteBase /
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
+
+# Forzar tipos MIME y cabeceras para archivos estáticos
+<IfModule mod_headers.c>
+    # Reglas específicas para CSS
+    <FilesMatch "\.css$">
+        Header set Content-Type "text/css; charset=UTF-8"
+        Header set Cache-Control "no-cache, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+        Header set Access-Control-Allow-Origin "*"
+        Header set X-Content-Type-Options "nosniff"
+        Header set Vary "Accept-Encoding"
+    </FilesMatch>
+
+    # Reglas para otros archivos estáticos
+    <FilesMatch "\.(js|jpg|jpeg|png|gif|ico)$">
+        Header set Cache-Control "no-cache, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+        Header set Access-Control-Allow-Origin "*"
+        Header set X-Content-Type-Options "nosniff"
+    </FilesMatch>
+</IfModule>
+
+# Forzar tipos MIME
+<IfModule mod_mime.c>
+    RemoveType .css
+    AddType text/css .css
+    RemoveType .js
+    AddType application/javascript .js
+    AddType image/jpeg .jpg .jpeg
+    AddType image/png .png
+    AddType image/x-icon .ico
+    
+    # Forzar charset UTF-8 para archivos CSS y JavaScript
+    AddCharset UTF-8 .css
+    AddCharset UTF-8 .js
+</IfModule>
+
+# Configuración específica para Firefox
+<FilesMatch "\.css$">
+    ForceType text/css
+</FilesMatch>
+<FilesMatch "\.js$">
+    ForceType application/javascript
+</FilesMatch>
+
+# Permitir acceso directo a archivos estáticos existentes
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Redirigir el resto al index.php
+RewriteRule ^(.+)$ index.php [QSA,L]
+
+# Permitir acceso directo a archivos estáticos existentes
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Redirigir el resto al index.php
 RewriteRule ^(.+)$ index.php [QSA,L]

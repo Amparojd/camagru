@@ -1,0 +1,122 @@
+/* Clases de autenticación */
+.auth-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 85vh;
+    text-align: center;
+    padding: 2rem;
+}
+
+.auth-form-container {
+    max-width: 460px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem;
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.auth-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.auth-header h2 {
+    font-size: 2rem;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+    font-size: 0.9rem;
+}
+
+.auth-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.auth-link:hover {
+    color: var(--color-secondary);
+    text-decoration: underline;
+}
+
+/* Clases de la página de inicio */
+.home-welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 85vh;
+    text-align: center;
+    padding: 2rem;
+}
+
+.logo-container {
+    margin-bottom: 2rem;
+}
+
+.main-logo {
+    max-width: 250px;
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    transition: var(--transition);
+}
+
+.main-logo:hover {
+    transform: scale(1.05);
+}
+
+.center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.welcome-text {
+    margin-bottom: 2rem;
+}
+
+.welcome-text h1 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    color: var(--color-primary);
+}
+
+.welcome-text p {
+    font-size: 1.2rem;
+    color: var(--color-text-light);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* Media queries */
+@media (max-width: 600px) {
+    .home-welcome {
+        padding: 1rem;
+    }
+    
+    .welcome-text h1 {
+        font-size: 1.8rem;
+    }
+    
+    .welcome-text p {
+        font-size: 1.1rem;
+    }
+    
+    .main-logo {
+        max-width: 200px;
+    }
+}

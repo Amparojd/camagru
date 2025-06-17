@@ -1,0 +1,100 @@
+/* Container principal */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Estilos para el contenido principal */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg);
+}
+
+.main-header {
+    background: var(--color-white);
+    color: var(--color-secondary);
+    padding: 1.2rem 2rem;
+    font-size: 1.3rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-bottom: 3px solid #6FCF97;
+}
+
+#main-content {
+    flex: 1;
+    padding: 2rem;
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    margin: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.footer {
+    text-align: center;
+    padding: 1.2rem;
+    background: var(--color-secondary);
+    color: var(--color-white);
+    font-size: 0.9rem;
+}
+
+/* Modificaciones de layout para páginas sin sidebar */
+.app-container.fullwidth .sidebar {
+    display: none;
+}
+
+.app-container.fullwidth .main-content {
+    margin-left: 0;
+    width: 100%;
+}
+
+.app-container.fullwidth .main-header {
+    display: none;
+}
+
+.app-container.fullwidth .footer {
+    background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+}
+
+/* Responsive Layout */
+@media (max-width: 900px) {
+    .main-content {
+        margin-left: 0; /* Eliminar margen en móvil */
+    }
+    
+    #main-content {
+        margin: 1rem;
+        padding: 1rem;
+    }
+    
+    .main-header {
+        padding: 1rem;
+        font-size: 1.1rem;
+    }
+}
+
+/* Estilos responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -240px;
+        transition: left 0.3s ease;
+        z-index: 1000;
+    }
+
+    .sidebar.show {
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    #main-content {
+        margin: 1rem;
+        padding: 1rem;
+    }
+}

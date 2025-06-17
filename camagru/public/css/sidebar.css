@@ -1,0 +1,60 @@
+/* Sidebar */
+.sidebar {
+    background: linear-gradient(to bottom, var(--color-primary), var(--color-secondary));
+    color: var(--color-white);
+    width: 240px;
+    min-height: 100vh;
+    padding: 2rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: var(--shadow-md);
+}
+
+/* Logo en el sidebar */
+.logo {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 0.5rem;
+    width: 100%;
+}
+
+.logo img {
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
+    transition: var(--transition);
+}
+
+.logo img:hover {
+    transform: scale(1.05);
+}
+
+/* Navegación del sidebar */
+.sidebar nav ul {
+    list-style: none;
+    width: 100%;
+}
+
+.sidebar nav ul li {
+    margin-bottom: 1.2rem;
+}
+
+.sidebar nav ul li a {
+    color: var(--color-white);
+    text-decoration: none;
+    font-size: 1.1rem;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-md);
+    display: block;
+    transition: var(--transition);
+    border-left: 3px solid transparent;
+}
+
+.sidebar nav ul li a:focus,
+.sidebar nav ul li a:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-left: 3px solid var(--color-white);
+}
+
+/* Este código duplicado ha sido eliminado */

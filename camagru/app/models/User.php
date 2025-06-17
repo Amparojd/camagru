@@ -8,40 +8,28 @@ class User {
     }
 
     public function create($username, $email, $password) {
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $token = bin2hex(random_bytes(50));
+        
+        $sql = "INSERT INTO users (username, email, password, verification_token) 
+                VALUES (:username, :email, :password, :token)";
+        
         try {
-            $hash = password_hash($password, PASSWORD_DEFAULT);
-            $token = bin2hex(random_bytes(50));
-            
-            $sql = "INSERT INTO users (username, email, password, verification_token) 
-                    VALUES (:username, :email, :password, :token)";
-            
             $stmt = $this->db->prepare($sql);
-            $result = $stmt->execute([
+            $stmt->execute([
                 ':username' => $username,
                 ':email' => $email,
                 ':password' => $hash,
                 ':token' => $token
             ]);
-            
-            if ($result) {
-                // Log para desarrollo
-                error_log("\n+------------------------------------------+");
-                error_log("|     NUEVA SOLICITUD DE VERIFICACIÓN      |");
-                error_log("+------------------------------------------+");
-                error_log("| Usuario: " . $username);
-                error_log("| Email: " . $email);
-                error_log("| Token: " . $token);
-                error_log("| URL de verificación:");
-                error_log("|    http://localhost:8080/verify?token=" . $token);
-                error_log("+------------------------------------------+\n");
-                
-                return true;
-            }
-            return false;
-        } catch(PDOException $e) {
-            error_log("Error al crear usuario: " . $e->getMessage());
-            return false;
+             if ($this->db->lastInsertId()) {
+            // Enviar email de verificación
+            return $this->sendVerificationEmail($email, $username, $token);
         }
+        return false;
+    } catch(PDOException $e) {
+        return false;
+    }
     }
 
     public function findByUsername($username) {
@@ -63,26 +51,20 @@ class User {
     }
 
     public function sendVerificationEmail($email, $username, $token) {
-        error_log("Iniciando envío de email a: " . $email);
-
-        $to = $email;
-        $subject = "Verifica tu cuenta de Camagru";
-        $verifyUrl = "http://localhost:8080/verify?token=" . $token;
-        
-        $message = "Hola $username,\n\n";
-        $message .= "Por favor, verifica tu cuenta haciendo clic en el siguiente enlace:\n";
-        $message .= $verifyUrl . "\n\n";
-        $message .= "Si no has creado esta cuenta, por favor ignora este email.\n";
-        
-        // Simplificamos los headers a un string simple
-        $headers = "From: noreply@camagru.com\r\n";
-        $headers .= "Reply-To: noreply@camagru.com\r\n";
-        $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-        
-        error_log("Headers: " . $headers);
-        $result = mail($to, $subject, $message, $headers);
+    $to = $email;
+    $subject = "Verifica tu cuenta de Camagru";
+    $verifyUrl = "http://localhost:8080/verify?token=" . $token;
     
-    error_log("Resultado del envío: " . ($result ? "éxito" : "fallo"));
-    return $result;
+    $message = "Hola $username,\n\n";
+    $message .= "Por favor, verifica tu cuenta haciendo clic en el siguiente enlace:\n";
+    $message .= $verifyUrl . "\n\n";
+    $message .= "Si no has creado esta cuenta, por favor ignora este email.\n";
+    
+    $headers = "From: noreply@camagru.com\r\n";
+    
+    // Para desarrollo: escribir el enlace de verificación en los logs
+    error_log("Enlace de verificación para $username: $verifyUrl");
+    
+    return mail($to, $subject, $message, $headers);
 }
 }

@@ -1,0 +1,27 @@
+/* Formularios */
+input, select, textarea {
+    font-size: 1rem;
+    padding: 0.7rem;
+    border-radius: var(--radius-md);
+    border: 1px solid #ddd;
+    margin-bottom: 1.2rem;
+    width: 100%;
+    transition: var(--transition);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px rgba(111, 207, 151, 0.2);
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--color-text);
+}

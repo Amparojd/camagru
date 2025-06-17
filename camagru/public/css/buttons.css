@@ -1,0 +1,42 @@
+/* Botones base */
+.btn, button {
+    background: var(--color-secondary);
+    color: var(--color-white);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    cursor: pointer;
+    margin: 0.5rem 0;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn:focus, .btn:hover,
+button:focus, button:hover {
+    background: var(--color-success);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+/* Variantes de botones */
+.btn-primary {
+    background: var(--color-primary);
+}
+
+.btn-secondary {
+    background: var(--color-white);
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+}
+
+.btn-secondary:hover {
+    background: #f0e6ff;
+}
+
+.btn-full {
+    width: 100%;
+}
