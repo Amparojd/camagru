@@ -1,7 +1,7 @@
 /* Sidebar */
 .sidebar {
-    background: linear-gradient(to bottom, var(--color-primary), var(--color-secondary));
-    color: var(--color-white);
+    background: var(--color-surface);
+    color: var(--color-primary);
     width: 240px;
     min-height: 100vh;
     padding: 2rem 1rem 1rem;
@@ -41,13 +41,14 @@
 }
 
 .sidebar nav ul li a {
-    color: var(--color-white);
+    color: var(--color-primary);
     text-decoration: none;
     font-size: 1.1rem;
     padding: 0.8rem 1rem;
     border-radius: var(--radius-md);
     display: block;
     transition: var(--transition);
+    font-weight: 500;
     border-left: 3px solid transparent;
 }
 

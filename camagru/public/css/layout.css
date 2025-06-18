@@ -10,27 +10,26 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: var(--color-bg);
 }
 
 .main-header {
-    background: var(--color-white);
-    color: var(--color-secondary);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: var(--color-white);
     padding: 1.2rem 2rem;
     font-size: 1.3rem;
     font-weight: 500;
     letter-spacing: 1px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    border-bottom: 3px solid #6FCF97;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 #main-content {
     flex: 1;
     padding: 2rem;
-    background: var(--color-white);
-    border-radius: var(--radius-lg);
+    background: transparent;
     margin: 2rem;
-    box-shadow: var(--shadow-md);
 }
 
 .footer {
