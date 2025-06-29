@@ -9,6 +9,30 @@ class AuthController {
     public function __construct() {
         $this->user = new User();
     }
+    
+    /**
+     * Cierra la sesión del usuario
+     */
+    public function logout() {
+        // Destruir todas las variables de sesión
+        $_SESSION = [];
+        
+        // Si se desea destruir la sesión completamente, borra también la cookie de sesión
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
+        
+        // Finalmente, destruir la sesión
+        session_destroy();
+        
+        // Redireccionar al login
+        header('Location: ' . URL_ROOT . '/login');
+        exit;
+    }
 
     private function render($view, $data = []) {
         if ($data) {
@@ -69,7 +93,7 @@ class AuthController {
                     
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['username'] = $user['username'];
-                    header('Location: /');
+                    header('Location: ' . URL_ROOT . '/');
                     exit;
                 }
                 $this->errors[] = "Usuario o contraseña incorrectos";

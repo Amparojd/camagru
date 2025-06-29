@@ -4,7 +4,9 @@ class Image {
     private $db;
     
     public function __construct() {
-        $this->db = new Database();
+        // Usamos el singleton para obtener la instancia de Database
+        $dbInstance = Database::getInstance();
+        $this->db = $dbInstance->getConnection();
     }
     
     /**
@@ -16,16 +18,21 @@ class Image {
      * @return bool|int ID de la imagen si se guarda correctamente, false en caso contrario
      */
     public function save($user_id, $file_path, $title = '') {
-        $this->db->query("INSERT INTO images (user_id, file_path, title, created_at) VALUES (:user_id, :file_path, :title, NOW())");
-        $this->db->bind(':user_id', $user_id);
-        $this->db->bind(':file_path', $file_path);
-        $this->db->bind(':title', $title);
-        
-        if ($this->db->execute()) {
-            return $this->db->lastInsertId();
+        try {
+            $stmt = $this->db->prepare("INSERT INTO images (user_id, file_path, title, created_at) VALUES (:user_id, :file_path, :title, NOW())");
+            $stmt->bindParam(':user_id', $user_id);
+            $stmt->bindParam(':file_path', $file_path);
+            $stmt->bindParam(':title', $title);
+            
+            if ($stmt->execute()) {
+                return $this->db->lastInsertId();
+            }
+            
+            return false;
+        } catch(PDOException $e) {
+            error_log("Error al guardar imagen: " . $e->getMessage());
+            return false;
         }
-        
-        return false;
     }
     
     /**
@@ -36,17 +43,23 @@ class Image {
      * @return array Lista de imágenes
      */
     public function getAllImages($page = 1, $perPage = 5) {
-        $offset = ($page - 1) * $perPage;
-        
-        $this->db->query("SELECT i.*, u.username 
-                          FROM images i 
-                          JOIN users u ON i.user_id = u.id 
-                          ORDER BY i.created_at DESC 
-                          LIMIT :limit OFFSET :offset");
-        $this->db->bind(':limit', $perPage);
-        $this->db->bind(':offset', $offset);
-        
-        return $this->db->resultSet();
+        try {
+            $offset = ($page - 1) * $perPage;
+            
+            $stmt = $this->db->prepare("SELECT i.*, u.username 
+                              FROM images i 
+                              JOIN users u ON i.user_id = u.id 
+                              ORDER BY i.created_at DESC 
+                              LIMIT :limit OFFSET :offset");
+            $stmt->bindParam(':limit', $perPage, PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch(PDOException $e) {
+            error_log("Error al obtener todas las imágenes: " . $e->getMessage());
+            return [];
+        }
     }
     
     /**
@@ -56,10 +69,16 @@ class Image {
      * @return array Lista de imágenes del usuario
      */
     public function getUserImages($user_id) {
-        $this->db->query("SELECT * FROM images WHERE user_id = :user_id ORDER BY created_at DESC");
-        $this->db->bind(':user_id', $user_id);
-        
-        return $this->db->resultSet();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM images WHERE user_id = :user_id ORDER BY created_at DESC");
+            $stmt->bindParam(':user_id', $user_id);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch(PDOException $e) {
+            error_log("Error al obtener imágenes del usuario: " . $e->getMessage());
+            return [];
+        }
     }
     
     /**
@@ -69,13 +88,19 @@ class Image {
      * @return object|bool Datos de la imagen o false si no existe
      */
     public function getImageById($id) {
-        $this->db->query("SELECT i.*, u.username 
-                          FROM images i 
-                          JOIN users u ON i.user_id = u.id 
-                          WHERE i.id = :id");
-        $this->db->bind(':id', $id);
-        
-        return $this->db->single();
+        try {
+            $stmt = $this->db->prepare("SELECT i.*, u.username 
+                              FROM images i 
+                              JOIN users u ON i.user_id = u.id 
+                              WHERE i.id = :id");
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+            
+            return $stmt->fetch(PDO::FETCH_OBJ);
+        } catch(PDOException $e) {
+            error_log("Error al obtener imagen por ID: " . $e->getMessage());
+            return false;
+        }
     }
     
     /**
@@ -86,37 +111,43 @@ class Image {
      * @return bool True si se eliminó correctamente, false en caso contrario
      */
     public function delete($id, $user_id) {
-        // Primero verificamos que la imagen pertenece al usuario
-        $this->db->query("SELECT * FROM images WHERE id = :id AND user_id = :user_id");
-        $this->db->bind(':id', $id);
-        $this->db->bind(':user_id', $user_id);
+        try {
+            // Primero verificamos que la imagen pertenece al usuario
+            $stmt = $this->db->prepare("SELECT * FROM images WHERE id = :id AND user_id = :user_id");
+            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':user_id', $user_id);
+            $stmt->execute();
+            
+            $image = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            if (!$image) {
+                return false; // La imagen no existe o no pertenece al usuario
+            }
+            
+            // Eliminar la imagen física del servidor
+            $file_path = $_SERVER['DOCUMENT_ROOT'] . '/' . $image->file_path;
+            if (file_exists($file_path)) {
+                unlink($file_path);
+            }
+            
+            // Eliminar los likes y comentarios asociados
+            $stmtLikes = $this->db->prepare("DELETE FROM likes WHERE image_id = :id");
+            $stmtLikes->bindParam(':id', $id);
+            $stmtLikes->execute();
+            
+            $stmtComments = $this->db->prepare("DELETE FROM comments WHERE image_id = :id");
+            $stmtComments->bindParam(':id', $id);
+            $stmtComments->execute();
         
-        $image = $this->db->single();
-        
-        if (!$image) {
-            return false; // La imagen no existe o no pertenece al usuario
+            // Eliminar la imagen de la base de datos
+            $stmtImage = $this->db->prepare("DELETE FROM images WHERE id = :id");
+            $stmtImage->bindParam(':id', $id);
+            
+            return $stmtImage->execute();
+        } catch(PDOException $e) {
+            error_log("Error al eliminar imagen: " . $e->getMessage());
+            return false;
         }
-        
-        // Eliminar la imagen física del servidor
-        $file_path = $_SERVER['DOCUMENT_ROOT'] . '/' . $image->file_path;
-        if (file_exists($file_path)) {
-            unlink($file_path);
-        }
-        
-        // Eliminar los likes y comentarios asociados
-        $this->db->query("DELETE FROM likes WHERE image_id = :id");
-        $this->db->bind(':id', $id);
-        $this->db->execute();
-        
-        $this->db->query("DELETE FROM comments WHERE image_id = :id");
-        $this->db->bind(':id', $id);
-        $this->db->execute();
-        
-        // Eliminar la imagen de la base de datos
-        $this->db->query("DELETE FROM images WHERE id = :id");
-        $this->db->bind(':id', $id);
-        
-        return $this->db->execute();
     }
     
     /**
@@ -125,10 +156,16 @@ class Image {
      * @return int Número total de imágenes
      */
     public function countImages() {
-        $this->db->query("SELECT COUNT(*) as total FROM images");
-        $result = $this->db->single();
-        
-        return $result->total;
+        try {
+            $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM images");
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            return $result->total;
+        } catch(PDOException $e) {
+            error_log("Error al contar imágenes: " . $e->getMessage());
+            return 0;
+        }
     }
     
     /**
@@ -160,5 +197,28 @@ class Image {
         $result = $this->db->single();
         
         return $result ? true : false;
+    }
+    
+    /**
+     * Obtiene las imágenes más recientes para mostrar en la galería principal
+     * 
+     * @param int $limit Número máximo de imágenes a retornar
+     * @return array Lista de imágenes
+     */
+    public function getLatestImages($limit = 10) {
+        try {
+            $stmt = $this->db->prepare("SELECT i.*, u.username 
+                              FROM images i 
+                              JOIN users u ON i.user_id = u.id 
+                              ORDER BY i.created_at DESC 
+                              LIMIT :limit");
+            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch(PDOException $e) {
+            error_log("Error al obtener las últimas imágenes: " . $e->getMessage());
+            return [];
+        }
     }
 }

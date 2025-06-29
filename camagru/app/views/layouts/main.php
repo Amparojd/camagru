@@ -29,7 +29,7 @@ $useFullwidth = !$isAuthenticated && in_array($currentPath, $fullwidthPaths);
                     <li><a href="<?php echo URL_ROOT; ?>/">Inicio</a></li>
                     <li><a href="<?php echo URL_ROOT; ?>/gallery">Galería</a></li>
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <li><a href="<?php echo URL_ROOT; ?>/edit">Editar</a></li>
+                        <li><a href="<?php echo URL_ROOT; ?>/editor">Editor</a></li>
                         <li><a href="<?php echo URL_ROOT; ?>/logout">Salir</a></li>
                     <?php else: ?>
                         <li><a href="<?php echo URL_ROOT; ?>/login">Entrar</a></li>

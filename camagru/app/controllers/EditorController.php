@@ -8,7 +8,7 @@ class EditorController {
     public function __construct() {
         // Verificamos primero si el usuario está autenticado
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
+            header('Location: ' . URL_ROOT . '/login');
             exit;
         }
         

@@ -8,8 +8,6 @@ class User {
     }
 
     public function create($username, $email, $password) {
-        error_log("Iniciando creación de usuario: $username con email: $email");
-        
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $token = bin2hex(random_bytes(50));
         
@@ -24,21 +22,14 @@ class User {
                 ':password' => $hash,
                 ':token' => $token
             ]);
-            
-            $userId = $this->db->lastInsertId();
-            error_log("Usuario creado con ID: $userId");
-            
-            if ($userId) {
-                // Enviar email de verificación
-                error_log("Enviando email de verificación para usuario ID: $userId");
-                return $this->sendVerificationEmail($email, $username, $token);
-            }
-            error_log("Error: No se pudo obtener el ID del usuario creado");
-            return false;
-        } catch(PDOException $e) {
-            error_log("Error PDO al crear usuario: " . $e->getMessage());
-            return false;
+             if ($this->db->lastInsertId()) {
+            // Enviar email de verificación
+            return $this->sendVerificationEmail($email, $username, $token);
         }
+        return false;
+    } catch(PDOException $e) {
+        return false;
+    }
     }
 
     public function findByUsername($username) {
@@ -71,17 +62,9 @@ class User {
     
     $headers = "From: noreply@camagru.com\r\n";
     
-    // Registrar información de depuración
-    error_log("INICIO - Proceso de verificación para usuario: $username");
-    error_log("CORREO - Intentando enviar verificación a: $email");
-    error_log("TOKEN - $token");
-    error_log("ENLACE - Enlace de verificación para $username: $verifyUrl");
+    // Para desarrollo: escribir el enlace de verificación en los logs
+    error_log("Enlace de verificación para $username: $verifyUrl");
     
-    // En modo desarrollo, no intentamos enviar el correo real
-    // Solo registramos la información y devolvemos true
-    error_log("FIN - Proceso de verificación registrado correctamente");
-    
-    // Para desarrollo, siempre devolvemos true sin intentar enviar el correo
-    return true;
+    return mail($to, $subject, $message, $headers);
 }
 }
