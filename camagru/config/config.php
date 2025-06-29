@@ -15,4 +15,5 @@ define('URL_ROOT', 'http://localhost:8080');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
-ini_set('error_log', '/var/log/apache2/error.log');
+// Cambiar la ubicación del log para que sea accesible y visible
+ini_set('error_log', '/var/www/html/camagru_error.log');

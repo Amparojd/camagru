@@ -6,7 +6,7 @@ class EditorController {
     private $imageModel;
     
     public function __construct() {
-        // Verificar que el usuario está autenticado
+        // Verificamos primero si el usuario está autenticado
         if (!isset($_SESSION['user_id'])) {
             header('Location: /login');
             exit;
