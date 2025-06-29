@@ -85,20 +85,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Habilitar botón de captura incluso sin sticker
+    if (streaming) {
+        captureBtn.disabled = false;
+    }
+    
     // Capturar foto
     captureBtn.addEventListener('click', function() {
-        if (!selectedSticker) {
-            alert('Por favor, selecciona un sticker primero.');
-            return;
-        }
-        
         // Dibujar el video en el canvas
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
         // Convertir canvas a imagen
         capturedImage = canvas.toDataURL('image/png');
         
-        // Mostrar vista previa con sticker
+        // Mostrar vista previa con o sin sticker
         showPreview(capturedImage);
     });
     
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Convertir canvas a imagen
                 capturedImage = canvas.toDataURL('image/png');
                 
-                // Mostrar vista previa con sticker
+                // Mostrar vista previa con o sin sticker
                 showPreview(capturedImage);
             };
             img.src = event.target.result;
@@ -147,13 +147,8 @@ document.addEventListener('DOMContentLoaded', function() {
         reader.readAsDataURL(file);
     });
     
-    // Mostrar vista previa con el sticker aplicado
+    // Mostrar vista previa con o sin sticker
     function showPreview(imageData) {
-        if (!selectedSticker) {
-            alert('Por favor, selecciona un sticker primero.');
-            return;
-        }
-        
         // Crear imagen para la vista previa
         const img = new Image();
         img.onload = function() {
@@ -166,28 +161,37 @@ document.addEventListener('DOMContentLoaded', function() {
             // Dibujar la imagen capturada
             previewContext.drawImage(img, 0, 0);
             
-            // Cargar y dibujar el sticker
-            const stickerImg = new Image();
-            stickerImg.onload = function() {
-                // Calcular tamaño del sticker (1/4 del tamaño de la imagen)
-                const stickerWidth = previewCanvas.width / 4;
-                const stickerHeight = (stickerImg.height / stickerImg.width) * stickerWidth;
-                
-                // Posición central
-                const x = (previewCanvas.width - stickerWidth) / 2;
-                const y = (previewCanvas.height - stickerHeight) / 2;
-                
-                // Dibujar sticker
-                previewContext.drawImage(stickerImg, x, y, stickerWidth, stickerHeight);
-                
-                // Actualizar vista previa
+            if (selectedSticker) {
+                // Si hay un sticker seleccionado, cargarlo y dibujarlo
+                const stickerImg = new Image();
+                stickerImg.onload = function() {
+                    // Calcular tamaño del sticker (1/4 del tamaño de la imagen)
+                    const stickerWidth = previewCanvas.width / 4;
+                    const stickerHeight = (stickerImg.height / stickerImg.width) * stickerWidth;
+                    
+                    // Posición central
+                    const x = (previewCanvas.width - stickerWidth) / 2;
+                    const y = (previewCanvas.height - stickerHeight) / 2;
+                    
+                    // Dibujar sticker
+                    previewContext.drawImage(stickerImg, x, y, stickerWidth, stickerHeight);
+                    
+                    // Actualizar vista previa
+                    preview.src = previewCanvas.toDataURL('image/png');
+                    capturedImage = previewCanvas.toDataURL('image/png');
+                    
+                    // Mostrar formulario de guardado
+                    saveForm.style.display = 'block';
+                };
+                stickerImg.src = selectedSticker;
+            } else {
+                // Si no hay sticker, simplemente mostrar la imagen
                 preview.src = previewCanvas.toDataURL('image/png');
                 capturedImage = previewCanvas.toDataURL('image/png');
                 
                 // Mostrar formulario de guardado
                 saveForm.style.display = 'block';
-            };
-            stickerImg.src = selectedSticker;
+            }
         };
         img.src = imageData;
     }
@@ -205,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('title', imageTitle.value);
         
         // Enviar imagen al servidor
-        fetch('/save-image', {
+        fetch('/editor/saveImage', {
             method: 'POST',
             body: formData
         })

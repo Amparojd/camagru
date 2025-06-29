@@ -38,6 +38,10 @@ switch ($request) {
         $editorController = new EditorController();
         $editorController->index();
         break;
+    case '/editor/saveImage':
+        $editorController = new EditorController();
+        $editorController->saveImage();
+        break;
     case '/gallery':
         $galleryController = new GalleryController();
         $galleryController->index();

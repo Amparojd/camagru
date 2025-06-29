@@ -34,6 +34,7 @@
         <!-- Sección de stickers -->
         <div class="stickers-section">
             <h3>Stickers</h3>
+            <p class="sticker-info">Los stickers son opcionales. Selecciona uno si deseas aplicarlo a tu imagen.</p>
             <div class="stickers-grid">
                 <?php foreach($stickers as $sticker): ?>
                 <div class="sticker-item">
